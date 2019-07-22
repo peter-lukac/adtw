@@ -40,7 +40,7 @@ def get_area(width, height, start_padding, middle_padding):
     return upper, lower
 
 
-def adtw(des_array, fit_array, start_padding=5, middle_padding=0.30):
+def adtw(des_array, fit_array, start_padding=5, middle_padding=0.50):
     height = des_array.shape[1]
     width = fit_array.shape[1]
 
