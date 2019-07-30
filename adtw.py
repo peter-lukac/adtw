@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 PATH_1 = 1
 PATH_3_1 = sqrt(10)
-PATH_2_1 = sqrt(5)
+PATH_2_1 = sqrt(5)/2
 PATH_1_1 = sqrt(2)
 
 UPWARD_1 = 1
@@ -54,13 +54,36 @@ def get_area(width, height, start_padding, middle_padding):
     return upper, lower
 
 
-def get_backtraced_path(local_distance_matrix):
-    x = local_distance_matrix.shape[0]
-    y = local_distance_matrix.shape[1]
+def path_step(x, y, upward, right, cost, tag, local_matrix, cumulated_matrix, backtrace_matrix, open_cells):
+    max_x = local_matrix.shape[0]
+    max_y = local_matrix.shape[1]
 
-    cumulated_distance_matrix = zeros((x,y))
-    cumulated_distance_matrix[:] = inf
-    cumulated_distance_matrix[0, 0] = local_distance_matrix[0, 0]
+    if x + upward >= max_x or y + right >= max_y:
+        return
+
+    s_upward = upward
+    if s_upward > 1:
+        s_upward = 1
+
+    s_right = right
+    if s_right > 1:
+        s_right = 1
+
+    d = cumulated_matrix[x, y] + sum(local_matrix[x+s_upward:x+upward+1, y+s_right:y+right+1]) * cost
+    if d < cumulated_matrix[x+upward, y+right]:
+        cumulated_matrix[x+upward, y+right] = d
+        backtrace_matrix[x+upward, y+right] = tag
+        if not [x+upward, y+right] in open_cells:
+            open_cells.insert(0, [x+upward, y+right])
+
+
+def get_backtraced_path(local_matrix):
+    x = local_matrix.shape[0]
+    y = local_matrix.shape[1]
+
+    cumulated_matrix = zeros((x,y))
+    cumulated_matrix[:] = inf
+    cumulated_matrix[0, 0] = local_matrix[0, 0]
 
     backtrace_matrix = zeros((x,y))
 
@@ -74,31 +97,19 @@ def get_backtraced_path(local_distance_matrix):
             continue
 
         #path 4
-        if o[0] < x-1 and o[1] < y-1:
-            d = cumulated_distance_matrix[o[0], o[1]] + (local_distance_matrix[o[0]+1, o[1]+1] * PATH_1_1)
-            if d < cumulated_distance_matrix[o[0]+1, o[1]+1]:
-                cumulated_distance_matrix[o[0]+1, o[1]+1] = d
-                backtrace_matrix[o[0]+1, o[1]+1] = DIAGONAL
-                if not [o[0]+1, o[1]+1] in open_cells:
-                    open_cells.insert(0, [o[0]+1, o[1]+1])
+        path_step(o[0], o[1], 1, 1, PATH_1_1, DIAGONAL, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
 
         #path 1
-        if o[0] < x-1:
-            d = cumulated_distance_matrix[o[0], o[1]] + local_distance_matrix[o[0]+1, o[1]]
-            if d < cumulated_distance_matrix[o[0]+1, o[1]]:
-                cumulated_distance_matrix[o[0]+1, o[1]] = d
-                backtrace_matrix[o[0]+1, o[1]] = UPWARD_1
-                if not [o[0]+1, o[1]] in open_cells:
-                    open_cells.insert(0, [o[0]+1, o[1]])
+        path_step(o[0], o[1], 1, 0, 1, UPWARD_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
 
         #path 7
-        if o[1] < y-1:
-            d = cumulated_distance_matrix[o[0], o[1]] + local_distance_matrix[o[0], o[1]+1]
-            if d < cumulated_distance_matrix[o[0], o[1]+1]:
-                cumulated_distance_matrix[o[0], o[1]+1] = d
-                backtrace_matrix[o[0], o[1]+1] = RIGHT_1
-                if not [o[0], o[1]+1] in open_cells:
-                    open_cells.insert(0, [o[0], o[1]+1])
+        path_step(o[0], o[1], 0, 1, 1, RIGHT_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
+
+        #path 3
+        path_step(o[0], o[1], 2, 1, PATH_2_1, UPWARD_2_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
+
+        #path 5
+        path_step(o[0], o[1], 1, 2, PATH_2_1, RIGHT_2_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
 
     path = [[x-1, y-1]]
     while not [0, 0] in path:
@@ -106,16 +117,24 @@ def get_backtraced_path(local_distance_matrix):
         if backtrace_matrix[path[0][0], path[0][1]] == DIAGONAL:
             path.insert(0, [path[0][0]-1, path[0][1]-1])
         #path 1
-        if backtrace_matrix[path[0][0], path[0][1]] == UPWARD_1:
+        elif backtrace_matrix[path[0][0], path[0][1]] == UPWARD_1:
             path.insert(0, [path[0][0]-1, path[0][1]])
         #path 7
-        if backtrace_matrix[path[0][0], path[0][1]] == RIGHT_1:
+        elif backtrace_matrix[path[0][0], path[0][1]] == RIGHT_1:
             path.insert(0, [path[0][0], path[0][1]-1])
+        #path 3
+        elif backtrace_matrix[path[0][0], path[0][1]] == UPWARD_2_1:
+            path.insert(0, [path[0][0]-2, path[0][1]-1])
+        #path 5
+        elif backtrace_matrix[path[0][0], path[0][1]] == RIGHT_2_1:
+            path.insert(0, [path[0][0]-1, path[0][1]-2])
+        else:
+            break
 
     plt.subplot(1,3,1)
-    plt.pcolormesh(local_distance_matrix)
+    plt.pcolormesh(local_matrix)
     plt.subplot(1,3,2)
-    plt.pcolormesh(cumulated_distance_matrix)
+    plt.pcolormesh(cumulated_matrix)
     plt.subplot(1,3,3)
     plt.pcolormesh(backtrace_matrix)
     plt.show()
