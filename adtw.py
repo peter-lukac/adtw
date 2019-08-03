@@ -1,4 +1,4 @@
-from numpy import zeros, sqrt, arange, linspace, sum, power, inf, nan
+from numpy import zeros, sqrt, arange, linspace, sum, power, inf, nan, array
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
@@ -145,10 +145,10 @@ def get_backtrace_matrix(local_matrix):
         path_step(o[0], o[1], 1, 1, PATH_1_1, DIAGONAL, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
 
         #path 1
-        path_step(o[0], o[1], 1, 0, 1, UPWARD_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
+        #path_step(o[0], o[1], 1, 0, 1, UPWARD_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
 
         #path 7
-        path_step(o[0], o[1], 0, 1, 1, RIGHT_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
+        #path_step(o[0], o[1], 0, 1, 1, RIGHT_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
 
         #path 3
         path_step(o[0], o[1], 2, 1, PATH_2_1, UPWARD_2_1, local_matrix, cumulated_matrix, backtrace_matrix, open_cells)
@@ -184,4 +184,4 @@ def adtw(des_array, fit_array, start_padding=5, middle_padding=0.50):
     backtrace_matrix = get_backtrace_matrix(distance_matrix)
     path = get_path(backtrace_matrix)
 
-    return path
+    return array(path)
