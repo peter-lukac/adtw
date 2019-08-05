@@ -165,9 +165,9 @@ def get_backtrace_matrix(local_matrix):
     return backtrace_matrix
 
 
-def adtw(des_array, fit_array, start_padding=5, middle_padding=0.50):
-    height = des_array.shape[1]
-    width = fit_array.shape[1]
+def adtw(des_array, fit_array, start_padding=5, middle_padding=0.50, plot_distance=False):
+    height = des_array.shape[0]
+    width = fit_array.shape[0]
 
     distance_matrix = zeros((height, width))
     distance_matrix[:,:] = nan
@@ -178,7 +178,7 @@ def adtw(des_array, fit_array, start_padding=5, middle_padding=0.50):
 
     for i in range(0, width):
         for j in range(lower[i], upper[i]):
-            distance_matrix[j,i] = sqrt(sum(power((des_array.T[j]-fit_array.T[i]), 2)))
+            distance_matrix[j,i] = sqrt(sum(power((des_array[j]-fit_array[i]), 2)))
 
 
     backtrace_matrix = get_backtrace_matrix(distance_matrix)
